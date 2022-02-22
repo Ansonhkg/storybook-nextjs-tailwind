@@ -1,34 +1,118 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Setup Next.js
 
-## Getting Started
+- https://nextjs.org/docs
 
-First, run the development server:
+# Setip Tailwindcss
 
-```bash
-npm run dev
-# or
-yarn dev
+- https://tailwindcss.com/docs/guides/nextjs
+
+# Installing storybook addons
+
+- `yarn add -D @storybook/builder-webpack5`
+- `yarn add -D @storybook/manager-webpack5`
+- `yarn add -D @storybook/addon-postcss`
+
+## Add Webpack as a resolution dependency
+
+```
+// package.json
+
+"resolutions": {
+    "webpack": "^5"
+}
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Replace `.storybook/main.js`
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+```
+// .storybook/main.js
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+const path = require('path');
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+module.exports = {
+  stories: ['../**/*.stories.mdx', '../**/*.stories.@(js|jsx|ts|tsx)'],
+  /** Expose public folder to storybook as static */
+  staticDirs: ['../public'],
+  addons: [
+    '@storybook/addon-links',
+    '@storybook/addon-essentials',
+    {
+      /**
+       * Fix Storybook issue with PostCSS@8
+       * @see https://github.com/storybookjs/storybook/issues/12668#issuecomment-773958085
+       */
+      name: '@storybook/addon-postcss',
+      options: {
+        postcssLoaderOptions: {
+          implementation: require('postcss'),
+        },
+      },
+    },
+  ],
+  core: {
+    builder: 'webpack5',
+  },
+  webpackFinal: (config) => {
+    /**
+     * Add support for alias-imports
+     * @see https://github.com/storybookjs/storybook/issues/11989#issuecomment-715524391
+     */
+    config.resolve.alias = {
+      ...config.resolve?.alias,
+      '@': [path.resolve(__dirname, '../'), path.resolve(__dirname, '../')],
+    };
 
-## Learn More
+    /**
+     * Fixes font import with /
+     * @see https://github.com/storybookjs/storybook/issues/12844#issuecomment-867544160
+     */
+    config.resolve.roots = [
+      path.resolve(__dirname, '../public'),
+      'node_modules',
+    ];
 
-To learn more about Next.js, take a look at the following resources:
+    return config;
+  },
+};
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Replace `.storybook/preview.js`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+```
+// .storybook/preview.js
 
-## Deploy on Vercel
+import '../styles/globals.css';
+import * as NextImage from 'next/image';
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+const OriginalNextImage = NextImage.default;
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Object.defineProperty(NextImage, 'default', {
+  configurable: true,
+  value: (props) => <OriginalNextImage {...props} unoptimized />,
+});
+
+export const parameters = {
+  actions: { argTypesRegex: '^on[A-Z].*' },
+  controls: {
+    matchers: {
+      color: /(background|color)$/i,
+      date: /Date$/,
+    },
+  },
+  previewTabs: {
+    'storybook/docs/panel': { index: -1 },
+  },
+};
+```
+
+## Example
+
+Check `./stories/Button.jsx` line 13
+
+# Run
+
+- `yarn storybook`
+
+# Reference
+
+- https://theodorusclarence.com/blog/nextjs-storybook-tailwind
