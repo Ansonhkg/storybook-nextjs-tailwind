@@ -2,7 +2,7 @@
 
 - https://nextjs.org/docs
 
-# Setip Tailwindcss
+# Setup Tailwindcss
 
 - https://tailwindcss.com/docs/guides/nextjs
 
