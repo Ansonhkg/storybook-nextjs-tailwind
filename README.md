@@ -109,6 +109,18 @@ export const parameters = {
 
 Check `./stories/Button.jsx` line 13
 
+### Note
+
+Open source code by default
+
+```
+  docs: {
+    source: {
+      state: 'open',
+     },
+  },
+```
+
 # Run
 
 - `yarn storybook`
