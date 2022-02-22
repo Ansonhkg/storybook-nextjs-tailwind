@@ -1,9 +1,13 @@
+import { Button } from '../components/Button'
+
 const index = () => {
   return (
     <div>
-      <h1 className="text-3xl font-bold underline text-red-900">
-      Hello world!
-      </h1>
+      <Button
+        label="Button"
+        onClick={() => {}}
+        size="large"
+      />
     </div>
   );
 }

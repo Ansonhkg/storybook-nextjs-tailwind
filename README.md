@@ -6,8 +6,9 @@
 
 - https://tailwindcss.com/docs/guides/nextjs
 
-# Installing storybook addons
+# Installing storybook & addons
 
+- `npx sb init`
 - `yarn add -D @storybook/builder-webpack5`
 - `yarn add -D @storybook/manager-webpack5`
 - `yarn add -D @storybook/addon-postcss`
